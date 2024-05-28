@@ -1,14 +1,16 @@
 package com.flappybirb.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-
+import com.badlogic.gdx.audio.Sound;
 import java.io.File;
 import java.util.Iterator;
 
@@ -34,6 +36,10 @@ public class FlappyScreen implements Screen {
     Array<Rectangle> pipesUp;
     long pipeTime;
     int score;
+    // gravity so that the fish jumping is not rough but a smooth motion
+    float fishVelocity;
+    final float FISH_GRAVITY = 250;
+    final float FORCE_OF_JUMP = 160;
 
     public FlappyScreen(final FlappyBirb game){
         this.game = game;
@@ -48,6 +54,8 @@ public class FlappyScreen implements Screen {
         pipeDown = new Texture(Gdx.files.internal("pipefacingdown.png"));
         font = new BitmapFont(Gdx.files.internal("Cloudy-0W244.ttf.fnt"), false);
 
+
+
         fish = new Rectangle();
         fish.width = 40;
         fish.height = 30;
@@ -56,7 +64,7 @@ public class FlappyScreen implements Screen {
 
         floor = new Rectangle();
         floor.width = 300;
-        floor.height = 43;
+        floor.height = 40;
         floor.x = 0;
         floor.y = 0;
 
@@ -79,6 +87,7 @@ public class FlappyScreen implements Screen {
         batch.draw(fishy,fish.x,fish.y);
 
 
+        //draws a set of pipes
         for (Rectangle pipe : pipesDown){
             batch.draw(pipeDown,pipe.x,pipe.y );
         }
@@ -88,30 +97,37 @@ public class FlappyScreen implements Screen {
         font.draw(batch,String.valueOf(score),140,450);
         batch.end();
 
-        if (Gdx.input.justTouched()){
-            fish.y += 3500 * Gdx.graphics.getDeltaTime();
+        // if mouse is clicked fish will go up else it will come down :)
+        if (Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+            fishVelocity = FORCE_OF_JUMP;
+
         } else{
-            fish.y -= 200 * Gdx.graphics.getDeltaTime();
+            fishVelocity -= FISH_GRAVITY * Gdx.graphics.getDeltaTime();
         }
+        fish.y += fishVelocity * Gdx.graphics.getDeltaTime();
 
         if (fish.y > 500 - 30) fish.y = 500 - 30;
 
+        // checks time since last pipe
         if (TimeUtils.nanoTime() - pipeTime > 2000000000){
             spawnPipes();
         }
 
+        /* iterates through array making pipes move to the left and checking if they have gone
+        off-screen ( to remove them ) or if they have hit the player which will result in game end
+         */
         for (Iterator<Rectangle> pipeDown = pipesDown.iterator(); pipeDown.hasNext();){
 
                 Rectangle pipeGoingDown = pipeDown.next();
 
 
-                pipeGoingDown.x -= 200 * Gdx.graphics.getDeltaTime();
+                pipeGoingDown.x -= 170 * Gdx.graphics.getDeltaTime();
 
-                if (pipeGoingDown.overlaps(fish)) {
+                if (pipeGoingDown.overlaps(fish) || floor.overlaps(fish)) {
                     game.didLose = true;
-                    if (game.highScore < score) {
-                        game.highScore = score;
-                        game.checkHighScore();
+                    if (game.score.highScore < score) {
+                        game.score.highScore = score;
+                        game.score.checkHighScore();
                     }
 
                     dispose();
@@ -131,15 +147,15 @@ public class FlappyScreen implements Screen {
             Rectangle pipeGoingUp = pipeUp.next();
 
 
-            pipeGoingUp.x -= 200 * Gdx.graphics.getDeltaTime();
+            pipeGoingUp.x -= 170 * Gdx.graphics.getDeltaTime();
 
 
             if (pipeGoingUp.overlaps(fish)){
                 game.didLose = true;
 
-                if (game.highScore < score){
-                    game.highScore = score;
-                    game.checkHighScore();
+                if (game.score.highScore < score){
+                    game.score.highScore = score;
+                    game.score.checkHighScore();
                 }
 
                 dispose();
@@ -152,7 +168,9 @@ public class FlappyScreen implements Screen {
 
 
     }
-
+/* makes a set of pipes , one facing up and one down, the pipe facing up will always be 150 pixels lower which will
+leave a gap
+ */
     public void spawnPipes(){
         Rectangle pipe1 = new Rectangle();
         Rectangle pipe2 = new Rectangle();
@@ -174,6 +192,8 @@ public class FlappyScreen implements Screen {
     }
 
 
+
+
     @Override
     public void resize(int i, int i1) {
 
@@ -193,6 +213,8 @@ public class FlappyScreen implements Screen {
     public void hide() {
 
     }
+
+
 
     @Override
     public void dispose() {

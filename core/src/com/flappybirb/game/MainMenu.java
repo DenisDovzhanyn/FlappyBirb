@@ -18,6 +18,7 @@ public class MainMenu implements Screen {
 
     public MainMenu(final FlappyBirb game){
         this.game = game;
+
         batch = new SpriteBatch();
         font = new BitmapFont(Gdx.files.internal("Cloudy-0W244.ttf.fnt"), false);
         camera = new OrthographicCamera();
@@ -43,7 +44,7 @@ public class MainMenu implements Screen {
         batch.draw(background,0,0);
         batch.draw(click,0,100);
         font.draw(batch,"High Score",30, 490);
-        font.draw(batch,String.valueOf(game.highScore), 140, 450);
+        font.draw(batch,String.valueOf(game.score.highScore), 140, 450);
         if (game.didLose){
             font.draw(batch,"Game Over", 35, 350);
         }
@@ -77,6 +78,8 @@ public class MainMenu implements Screen {
     public void hide() {
 
     }
+
+
 
     @Override
     public void dispose() {
