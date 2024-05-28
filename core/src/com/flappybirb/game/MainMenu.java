@@ -39,7 +39,9 @@ public class MainMenu implements Screen {
         batch.draw(click,0,250);
         batch.end();
         if (Gdx.input.isTouched()){
-            game.setScreen(new FlappyScreen());
+            game.setScreen(new FlappyScreen(game));
+            dispose();
+
         }
 
 
@@ -67,6 +69,9 @@ public class MainMenu implements Screen {
 
     @Override
     public void dispose() {
+        batch.dispose();
+        background.dispose();
+        click.dispose();
 
     }
 }
