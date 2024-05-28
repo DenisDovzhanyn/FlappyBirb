@@ -1,14 +1,15 @@
 package com.flappybirb.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import java.awt.*;
+
+import java.io.File;
 import java.util.Iterator;
 
 import com.badlogic.gdx.utils.Array;
@@ -26,11 +27,13 @@ public class FlappyScreen implements Screen {
     Texture fishy;
     Texture pipeUp;
     Texture pipeDown;
+    BitmapFont font;
     Rectangle fish;
     Rectangle floor;
     Array<Rectangle> pipesDown;
     Array<Rectangle> pipesUp;
     long pipeTime;
+    int score;
 
     public FlappyScreen(final FlappyBirb game){
         this.game = game;
@@ -43,6 +46,7 @@ public class FlappyScreen implements Screen {
         fishy = new Texture(Gdx.files.internal("fishy.png"));
         pipeUp = new Texture(Gdx.files.internal("pipefacingup.png"));
         pipeDown = new Texture(Gdx.files.internal("pipefacingdown.png"));
+        font = new BitmapFont(Gdx.files.internal("Cloudy-0W244.ttf.fnt"), false);
 
         fish = new Rectangle();
         fish.width = 40;
@@ -74,12 +78,14 @@ public class FlappyScreen implements Screen {
         batch.draw(background,0,0);
         batch.draw(fishy,fish.x,fish.y);
 
+
         for (Rectangle pipe : pipesDown){
             batch.draw(pipeDown,pipe.x,pipe.y );
         }
         for (Rectangle pipe : pipesUp){
             batch.draw(pipeUp,pipe.x,pipe.y);
         }
+        font.draw(batch,String.valueOf(score),140,450);
         batch.end();
 
         if (Gdx.input.justTouched()){
@@ -101,9 +107,21 @@ public class FlappyScreen implements Screen {
 
                 pipeGoingDown.x -= 200 * Gdx.graphics.getDeltaTime();
 
+                if (pipeGoingDown.overlaps(fish)) {
+                    game.didLose = true;
+                    if (game.highScore < score) {
+                        game.highScore = score;
+                        game.checkHighScore();
+                    }
 
-                if (pipeGoingDown.x + 75 < 0 ) pipeDown.remove();
-                if (pipeGoingDown.overlaps(fish) ) System.out.println("youlost");
+                    dispose();
+                    game.setScreen(new MainMenu(game));
+                }
+
+            if (pipeGoingDown.x + 75 < 0 ){
+                pipeDown.remove();
+                score++;
+            }
 
 
 
@@ -115,8 +133,20 @@ public class FlappyScreen implements Screen {
 
             pipeGoingUp.x -= 200 * Gdx.graphics.getDeltaTime();
 
+
+            if (pipeGoingUp.overlaps(fish)){
+                game.didLose = true;
+
+                if (game.highScore < score){
+                    game.highScore = score;
+                    game.checkHighScore();
+                }
+
+                dispose();
+                game.setScreen(new MainMenu(game));
+            }
+
             if (pipeGoingUp.x + 75 < 0) pipeUp.remove();
-            if (pipeGoingUp.overlaps(fish)) System.out.println("youlost");
         }
 
 
@@ -166,6 +196,12 @@ public class FlappyScreen implements Screen {
 
     @Override
     public void dispose() {
+        batch.dispose();
+        background.dispose();
+        fishy.dispose();
+        pipeUp.dispose();
+        pipeDown.dispose();
+
 
     }
 }
