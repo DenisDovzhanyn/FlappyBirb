@@ -88,7 +88,8 @@ com_crashlytics_export_strings.xml
 
 nbactions.xml
 nb-configuration.xml
-
+/assets/highScore.txt
+/windows-release
 ## Gradle
 
 /local.properties
@@ -112,3 +113,6 @@ Thumbs.db
 /ios/xcode/native/
 /ios/IOSLauncher.app
 /ios/IOSLauncher.app.dSYM
+/packr/packr-all-4.0.0.jar
+/packr/openjdk-11.0.2_windows-x64_bin.zip
+/packr/openjdk-11.0.2_osx-x64_bin.tar.gz
