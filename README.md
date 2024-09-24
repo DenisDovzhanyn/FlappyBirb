@@ -21,4 +21,4 @@ The game consists of several components, including:
 
 - The fish's movement is influenced by gravity and jump force, creating a smooth jumping motion.
 - Pipes are spawned at regular intervals, and their positions are updated to create the illusion of movement.
-- Collision detection is implemented to determine if the fish has hit a pipe or the floor, resulting in a game-over state.
+- Collision detection is implemented to determine if the fish has hit a pipe or the floor, resulting in a game-over state..
